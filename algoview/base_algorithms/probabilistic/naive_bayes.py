@@ -6,27 +6,27 @@ class GaussianNB:
     """
 
     def __init__(self):
-        self.classes = None
-        self.mean = None
-        self.var = None
-        self.priors = None
+        self.classes_ = None
+        self.mean_ = None
+        self.var_ = None
+        self.priors_ = None
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
-        self.classes = np.unique(y)
-        n_classes = len(self.classes)
+        self.classes_ = np.unique(y)
+        n_classes = len(self.classes_)
 
         # Инициализация параметров
-        self.mean = np.zeros((n_classes, n_features))
-        self.var = np.zeros((n_classes, n_features))
-        self.priors = np.zeros(n_classes)
+        self.mean_ = np.zeros((n_classes, n_features))
+        self.var_ = np.zeros((n_classes, n_features))
+        self.priors_ = np.zeros(n_classes)
 
         # Вычисление параметров для каждого класса
-        for idx, cls in enumerate(self.classes):
+        for idx, cls in enumerate(self.classes_):
             X_cls = X[y == cls]
-            self.mean[idx, :] = X_cls.mean(axis=0)
-            self.var[idx, :] = X_cls.var(axis=0)
-            self.priors[idx] = len(X_cls) / n_samples
+            self.mean_[idx, :] = X_cls.mean(axis=0)
+            self.var_[idx, :] = X_cls.var(axis=0)
+            self.priors_[idx] = len(X_cls) / n_samples
 
     def _pdf(self, x, mean, var):
         # Вероятность по нормальному распределению
@@ -35,18 +35,18 @@ class GaussianNB:
     def _predict_single(self, x):
         posteriors = []
 
-        for idx, cls in enumerate(self.classes):
+        for idx, cls in enumerate(self.classes_):
             # Априорная вероятность класса
-            prior = np.log(self.priors[idx])
+            prior = np.log(self.priors_[idx])
             
             # Правдоподобие признаков
-            likelihood = np.sum(np.log(self._pdf(x, self.mean[idx, :], self.var[idx, :])))
+            likelihood = np.sum(np.log(self._pdf(x, self.mean_[idx, :], self.var_[idx, :])))
             
             # Апостериорная вероятность (в логарифмическом масштабе)
             posterior = prior + likelihood
             posteriors.append(posterior)
 
-        return self.classes[np.argmax(posteriors)]
+        return self.classes_[np.argmax(posteriors)]
 
     def predict(self, X):
         predictions = [self._predict_single(x) for x in X]
@@ -56,9 +56,9 @@ class GaussianNB:
         probas = []
         for x in X:
             posteriors = []
-            for idx, cls in enumerate(self.classes):
-                prior = np.log(self.priors[idx])
-                likelihood = np.sum(np.log(self._pdf(x, self.mean[idx, :], self.var[idx, :])))
+            for idx, cls in enumerate(self.classes_):
+                prior = np.log(self.priors_[idx])
+                likelihood = np.sum(np.log(self._pdf(x, self.mean_[idx, :], self.var_[idx, :])))
                 posterior = prior + likelihood
                 posteriors.append(posterior)
             
