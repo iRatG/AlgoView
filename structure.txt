@@ -1,0 +1,40 @@
+algoview/
+    base_algorithms/
+        linear/
+            __init__.py
+            logistic.py      # Логистическая регрессия
+            lda.py          # Линейный дискриминантный анализ
+        trees/
+            __init__.py
+            decision_tree.py # Дерево решений (классификация)
+            regression_tree.py # Дерево решений (регрессия)
+        probabilistic/
+            __init__.py
+            naive_bayes.py  # Наивный Байес
+        neighbors/
+            __init__.py
+            knn.py          # K-ближайших соседей
+    
+    ensemble/
+        __init__.py
+        bagging.py         # Random Forest и Bagging
+        boosting.py        # Gradient Boosting
+        stacking.py        # Stacking (базовый и с визуализацией)
+    
+    metrics/
+        __init__.py
+        classification.py  # evaluate_model и другие метрики классификации
+        regression.py      # Метрики для регрессии
+        tracker.py        # Отслеживание метрик во время обучения
+    
+    utils/
+        __init__.py
+        data.py           # analyze_dataset, feature_summary, feature_selector
+        preprocessing.py  # prepare_data_classic, simple_oversample
+        serialization.py  # Сохранение/загрузка моделей
+    
+    visualization/
+        __init__.py
+        base.py           # Базовые компоненты визуализации
+        plot_metrics.py   # Визуализация метрик
+        plot_models.py    # Визуализация работы моделей 
