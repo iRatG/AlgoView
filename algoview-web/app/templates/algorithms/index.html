@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Алгоритмы{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h1 class="display-4 mb-4">Алгоритмы машинного обучения</h1>
+            <p class="lead">
+                Выберите алгоритм для визуализации его работы на демонстрационных данных.
+                Все метрики качества рассчитываются на реальном наборе данных UCI Credit Card.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Логистическая регрессия</h5>
+                    <p class="card-text">
+                        Линейный классификатор, который хорошо работает с линейно разделимыми данными.
+                        Прост в интерпретации и быстр в обучении.
+                    </p>
+                    <button class="btn btn-primary" onclick="trainAlgorithm('logistic_regression')">
+                        Запустить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Линейный дискриминантный анализ</h5>
+                    <p class="card-text">
+                        Похож на логистическую регрессию, но использует другой подход к оценке вероятностей.
+                        Хорошо работает, когда классы имеют нормальное распределение.
+                    </p>
+                    <button class="btn btn-primary" onclick="trainAlgorithm('lda')">
+                        Запустить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Наивный Байес</h5>
+                    <p class="card-text">
+                        Вероятностный классификатор, основанный на теореме Байеса.
+                        Хорошо работает с многомерными данными и требует меньше данных для обучения.
+                    </p>
+                    <button class="btn btn-primary" onclick="trainAlgorithm('gaussian_nb')">
+                        Запустить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Дерево решений</h5>
+                    <p class="card-text">
+                        Создает иерархическую структуру правил для классификации.
+                        Легко интерпретируется и может работать с нелинейными зависимостями.
+                    </p>
+                    <button class="btn btn-primary" onclick="trainAlgorithm('decision_tree')">
+                        Запустить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Случайный лес</h5>
+                    <p class="card-text">
+                        Ансамбль деревьев решений. Более устойчив к переобучению
+                        и обычно дает лучшие результаты, чем одиночное дерево.
+                    </p>
+                    <button class="btn btn-primary" onclick="trainAlgorithm('random_forest')">
+                        Запустить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для визуализации -->
+    <div class="row mt-5" id="visualization-container" style="display: none;">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Визуализация алгоритма</h5>
+                    <div id="plot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Метрики качества</h5>
+                    <div id="metrics"></div>
+                    <small class="text-muted">
+                        * Метрики рассчитаны на реальном наборе данных UCI Credit Card
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function trainAlgorithm(algorithmId) {
+    // Показываем индикатор загрузки
+    document.getElementById('visualization-container').style.display = 'none';
+    
+    // Отправляем запрос на обучение
+    fetch(`/api/train/${algorithmId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Ошибка: ' + data.error);
+            return;
+        }
+        
+        // Отображаем визуализацию
+        document.getElementById('visualization-container').style.display = 'block';
+        
+        // Создаем график
+        Plotly.newPlot('plot', data.visualization.data, data.visualization.layout);
+        
+        // Отображаем метрики
+        const metrics = data.metrics;
+        document.getElementById('metrics').innerHTML = `
+            <table class="table">
+                <tr>
+                    <td>Точность (Accuracy)</td>
+                    <td>${(metrics.accuracy * 100).toFixed(2)}%</td>
+                </tr>
+                <tr>
+                    <td>Precision</td>
+                    <td>${(metrics.precision * 100).toFixed(2)}%</td>
+                </tr>
+                <tr>
+                    <td>Recall</td>
+                    <td>${(metrics.recall * 100).toFixed(2)}%</td>
+                </tr>
+                <tr>
+                    <td>F1-score</td>
+                    <td>${(metrics.f1 * 100).toFixed(2)}%</td>
+                </tr>
+            </table>
+            <p class="text-muted mt-2">
+                Размер набора данных: ${metrics.data_size} записей
+            </p>
+        `;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при обработке запроса');
+    });
+}
+</script>
+{% endblock %} 

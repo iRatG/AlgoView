@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h1 class="display-4 mb-4">Добро пожаловать в AlgoView</h1>
+            <p class="lead">
+                AlgoView - это интерактивная платформа для визуализации алгоритмов машинного обучения
+                в задаче кредитного скоринга.
+            </p>
+            <div class="mt-4">
+                <a href="{{ url_for('web.algorithms') }}" class="btn btn-primary">Перейти к алгоритмам</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Демонстрационный график -->
+    <div class="row mb-5">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Пример визуализации: Логистическая регрессия</h5>
+                    <div id="demo-plot" style="height: 400px;"></div>
+                    <p class="text-muted mt-3">
+                        На графике показано, как логистическая регрессия разделяет пространство признаков
+                        на два класса: одобренные (синий) и отклоненные (красный) кредитные заявки.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Визуализация алгоритмов</h5>
+                    <p class="card-text">
+                        Наглядно представляем работу различных алгоритмов машинного обучения
+                        на реальных и демонстрационных данных.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Интерактивное обучение</h5>
+                    <p class="card-text">
+                        Изучайте, как работают алгоритмы, экспериментируя с параметрами
+                        и наблюдая за изменениями в реальном времени.
+                    </p>
+                    <a href="{{ url_for('web.algorithms') }}" class="btn btn-primary">Посмотреть примеры</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Метрики качества</h5>
+                    <p class="card-text">
+                        Оценивайте эффективность алгоритмов с помощью различных метрик
+                        и сравнивайте их производительность.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Генерируем демонстрационные данные
+    const n = 100;
+    const x1 = [], x2 = [], y = [];
+    
+    // Класс 0 (отклоненные заявки)
+    for (let i = 0; i < n/2; i++) {
+        x1.push(Math.random() * 2 - 3);  // mean = -2
+        x2.push(Math.random() * 2 - 3);  // mean = -2
+        y.push(0);
+    }
+    
+    // Класс 1 (одобренные заявки)
+    for (let i = 0; i < n/2; i++) {
+        x1.push(Math.random() * 2 + 1);  // mean = 2
+        x2.push(Math.random() * 2 + 1);  // mean = 2
+        y.push(1);
+    }
+    
+    // Создаем точки данных
+    const trace1 = {
+        x: x1.filter((_, i) => y[i] === 0),
+        y: x2.filter((_, i) => y[i] === 0),
+        mode: 'markers',
+        type: 'scatter',
+        name: 'Отклоненные заявки',
+        marker: {
+            color: '#dc3545',
+            size: 10
+        }
+    };
+    
+    const trace2 = {
+        x: x1.filter((_, i) => y[i] === 1),
+        y: x2.filter((_, i) => y[i] === 1),
+        mode: 'markers',
+        type: 'scatter',
+        name: 'Одобренные заявки',
+        marker: {
+            color: '#0d6efd',
+            size: 10
+        }
+    };
+    
+    // Добавляем разделяющую линию
+    const line = {
+        x: [-4, 4],
+        y: [-4, 4],
+        mode: 'lines',
+        type: 'scatter',
+        name: 'Граница решения',
+        line: {
+            color: '#198754',
+            width: 2,
+            dash: 'dash'
+        }
+    };
+    
+    // Настройки графика
+    const layout = {
+        title: 'Визуализация классификации кредитных заявок',
+        xaxis: {
+            title: 'Признак 1 (например, доход)',
+            zeroline: false
+        },
+        yaxis: {
+            title: 'Признак 2 (например, кредитный рейтинг)',
+            zeroline: false
+        },
+        hovermode: 'closest',
+        plot_bgcolor: '#f8f9fa',
+        paper_bgcolor: '#ffffff',
+        showlegend: true,
+        legend: {
+            x: 1,
+            xanchor: 'right',
+            y: 1
+        },
+        margin: {
+            l: 50,
+            r: 50,
+            b: 50,
+            t: 50,
+            pad: 4
+        }
+    };
+    
+    // Отображаем график
+    Plotly.newPlot('demo-plot', [trace1, trace2, line], layout);
+});
+</script>
+{% endblock %} 

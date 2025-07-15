@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block title %}{{ algorithm.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>{{ algorithm.name }}</h2>
+            <p class="lead">{{ algorithm.description }}</p>
+            
+            <!-- Индикатор загрузки -->
+            <div id="loading-indicator" style="display: none;" class="text-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-2">Пожалуйста, подождите. Выполняется обработка данных...</p>
+            </div>
+            
+            <!-- Сообщения об ошибках -->
+            <div id="error-message" class="alert alert-danger" style="display: none;">
+            </div>
+            
+            <!-- Кнопки управления -->
+            <div class="btn-toolbar mb-4" role="toolbar">
+                <div class="btn-group me-2" role="group">
+                    <button id="train-button" class="btn btn-primary" onclick="trainModel()">
+                        Обучить модель
+                    </button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-secondary" onclick="window.location.href='/algorithms'">
+                        Вернуться к списку
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Визуализация -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Визуализация модели</h5>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Визуализация создана на демонстрационных данных для наглядности работы алгоритма
+                    </div>
+                    <div id="visualization" style="height: 500px;">
+                        <div class="d-flex justify-content-center align-items-center h-100">
+                            <p class="text-muted">Обучите модель для отображения визуализации</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Метрики -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Метрики качества</h5>
+                    <div id="data-info" style="display: none;" class="alert alert-info mb-3">
+                        <h6 class="alert-heading">Информация о данных:</h6>
+                        <p class="mb-0" id="data-type"></p>
+                        <p class="mb-0" id="data-size"></p>
+                    </div>
+                    <div id="metrics">
+                        <p class="text-muted">Метрики будут доступны после обучения модели</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Описание метрик -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Описание метрик</h5>
+                    <dl>
+                        <dt>Accuracy (Точность)</dt>
+                        <dd>Доля правильных предсказаний среди всех предсказаний</dd>
+                        
+                        <dt>Precision (Точность положительных предсказаний)</dt>
+                        <dd>Доля правильных положительных предсказаний среди всех положительных предсказаний</dd>
+                        
+                        <dt>Recall (Полнота)</dt>
+                        <dd>Доля правильных положительных предсказаний среди всех реальных положительных случаев</dd>
+                        
+                        <dt>F1-score</dt>
+                        <dd>Среднее гармоническое между precision и recall</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Скрипты -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    const algorithmId = "{{ algorithm.id }}";
+</script>
+<script src="{{ url_for('static', filename='js/algorithm_viewer.js') }}"></script>
+{% endblock %} 

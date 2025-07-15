@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Загрузка данных{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Загрузка данных</h2>
+                    <p class="card-text">Загрузите CSV файл с данными для анализа.</p>
+                    
+                    <div class="alert alert-info">
+                        <h5>Требования к файлу:</h5>
+                        <ul>
+                            <li>Формат файла: CSV</li>
+                            <li>Кодировка: UTF-8</li>
+                            <li>Разделитель: запятая (,)</li>
+                            <li>Обязательные колонки: 
+                                <ul>
+                                    <li>ID - идентификатор записи</li>
+                                    <li>default.payment.next.month - целевая переменная (0 или 1)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-danger" id="error-message" style="display: none;"></div>
+                    <div class="alert alert-success" id="success-message" style="display: none;"></div>
+
+                    <form id="upload-form" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Выберите файл</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".csv">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="upload-button">
+                            Загрузить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('upload-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const button = document.getElementById('upload-button');
+    const errorElement = document.getElementById('error-message');
+    const successElement = document.getElementById('success-message');
+    const fileInput = document.getElementById('file');
+    
+    // Скрываем сообщения
+    errorElement.style.display = 'none';
+    successElement.style.display = 'none';
+    
+    // Проверяем, выбран ли файл
+    if (!fileInput.files.length) {
+        errorElement.textContent = 'Выберите файл';
+        errorElement.style.display = 'block';
+        return;
+    }
+    
+    // Проверяем расширение файла
+    const file = fileInput.files[0];
+    if (!file.name.endsWith('.csv')) {
+        errorElement.textContent = 'Разрешены только CSV файлы';
+        errorElement.style.display = 'block';
+        return;
+    }
+    
+    // Отключаем кнопку и показываем спиннер
+    button.disabled = true;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Загрузка...';
+    
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Ошибка при загрузке файла');
+        }
+        
+        // Показываем сообщение об успехе
+        successElement.textContent = data.message || 'Файл успешно загружен';
+        successElement.style.display = 'block';
+        
+        // Очищаем форму
+        fileInput.value = '';
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        errorElement.textContent = error.message || 'Произошла ошибка при загрузке файла';
+        errorElement.style.display = 'block';
+    } finally {
+        // Возвращаем кнопку в исходное состояние
+        button.disabled = false;
+        button.innerHTML = originalText;
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Каталог алгоритмов{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Каталог алгоритмов</h1>
+    
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-12 mb-4">
+            <h2 class="h4 mb-3">{{ category.category }}</h2>
+            <div class="row">
+                {% for algorithm in category.algorithms %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ algorithm.name }}</h5>
+                            <p class="card-text">{{ algorithm.description }}</p>
+                            <a href="{{ url_for('views.algorithm', algo_id=algorithm.id) }}" class="btn btn-primary">
+                                Открыть
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

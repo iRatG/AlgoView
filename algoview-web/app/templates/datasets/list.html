@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Список датасетов{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Список датасетов</h1>
+        <a href="{{ url_for('datasets.upload') }}" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Загрузить новый
+        </a>
+    </div>
+    
+    {% if not datasets %}
+    <div class="alert alert-info">
+        Нет загруженных датасетов. <a href="{{ url_for('datasets.upload') }}">Загрузите</a> свой первый датасет!
+    </div>
+    {% else %}
+    <div class="row">
+        {% for dataset in datasets %}
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title">{{ dataset.filename }}</h5>
+                        <div>
+                            <a href="{{ url_for('datasets.download_dataset', filename=dataset.filename) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-download"></i> Скачать
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <small class="text-muted">Размер:</small>
+                            <div>{{ '%.2f'|format(dataset.size / 1024) }} KB</div>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted">Создан:</small>
+                            <div>{{ dataset.created.strftime('%d.%m.%Y %H:%M') }}</div>
+                        </div>
+                        {% if dataset.preview and not dataset.preview.error %}
+                        <div class="col-md-4">
+                            <small class="text-muted">Размерность:</small>
+                            <div>{{ dataset.preview.shape[0] }} строк × {{ dataset.preview.shape[1] }} столбцов</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if dataset.preview %}
+                        {% if dataset.preview.error %}
+                        <div class="alert alert-warning">
+                            Ошибка при чтении файла: {{ dataset.preview.error }}
+                        </div>
+                        {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        {% for col in dataset.preview.columns %}
+                                        <th>{{ col }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in dataset.preview.rows %}
+                                    <tr>
+                                        {% for cell in row %}
+                                        <td>{{ cell }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 
